@@ -1,0 +1,1 @@
+1. uuid : can provide a specific id for our room.
