@@ -53,7 +53,8 @@ app.set('view engine', 'ejs')
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
-    res.redirect(`/${uuidV4()}`)
+    // res.redirect(`/${uuidV4()}`)
+    res.send("hi,welcome to my home page")
 })
 
 app.get('/:room', (req, res) => {
