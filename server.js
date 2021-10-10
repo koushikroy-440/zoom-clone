@@ -1,37 +1,79 @@
-const express = require('express');
-const app = express();
-const server = require('http').Server(app);
+// const express = require('express');
+// const app = express();
+// const server = require('http').Server(app);
+// const io = require('socket.io')(server)
+// const { v4: uuidV4 } = require('uuid');
+// const { ExpressPeerServer } = require('peer');
+// const peerServer = ExpressPeerServer(server, {
+//     debug: true
+// });
+// //* set view engine
+// app.set('view engine', 'ejs');
+
+// //* set public file
+// app.use(express.static('public'));
+// app.use('/peerjs', peerServer);
+
+// app.get('/', (req, res) => {
+//     res.redirect(`/${uuidV4()}`);
+// });
+
+// app.get('/:room', (req, res) => {
+//     res.render('room', { roomId: req.params.room });
+// });
+
+
+// //*socket io
+// io.on('connection', (socket) => {
+//     socket.on('join-room', function (roomId, userId) {
+//         socket.join(roomId);
+//         socket.to(roomId).emit('user-connected', userId);
+//         socket.on('message', message => {
+//             io.to(roomId).emit('createMessage', message)
+//         })
+//     })
+// });
+// server.listen(3030,()=>console.log('listening on'));
+
+const express = require('express')
+const app = express()
+// const cors = require('cors')
+// app.use(cors())
+const server = require('http').Server(app)
 const io = require('socket.io')(server)
-const { v4: uuidV4 } = require('uuid');
 const { ExpressPeerServer } = require('peer');
 const peerServer = ExpressPeerServer(server, {
     debug: true
 });
-//* set view engine
-app.set('view engine', 'ejs');
+const { v4: uuidV4 } = require('uuid')
 
-//* set public file
-app.use(express.static('public'));
 app.use('/peerjs', peerServer);
 
+app.set('view engine', 'ejs')
+app.use(express.static('public'))
+
 app.get('/', (req, res) => {
-    res.redirect(`/${uuidV4()}`);
-});
+    res.redirect(`/${uuidV4()}`)
+})
 
 app.get('/:room', (req, res) => {
-    res.render('room', { roomId: req.params.room });
-});
+    res.render('room', { roomId: req.params.room })
+})
 
-
-//*socket io
-io.on('connection', (socket) => {
-    socket.on('join-room', function (roomId, userId) {
-        socket.join(roomId);
-        socket.to(roomId).emit('user-connected', userId);
-        socket.on('message', message => {
+io.on('connection', socket => {
+    socket.on('join-room', (roomId, userId) => {
+        socket.join(roomId)
+        socket.to(roomId).broadcast.emit('user-connected', userId);
+        // messages
+        socket.on('message', (message) => {
+            //send message to the same room
             io.to(roomId).emit('createMessage', message)
+        });
+
+        socket.on('disconnect', () => {
+            socket.to(roomId).broadcast.emit('user-disconnected', userId)
         })
     })
-});
-server.listen(3030);
+})
 
+server.listen(process.env.PORT || 3030)
