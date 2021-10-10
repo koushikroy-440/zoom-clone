@@ -13,6 +13,7 @@ app.set('view engine', 'ejs');
 //* set public file
 app.use(express.static('public'));
 app.use('/peerjs', peerServer);
+
 app.get('/', (req, res) => {
     res.redirect(`/${uuidV4()}`);
 });
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 app.get('/:room', (req, res) => {
     res.render('room', { roomId: req.params.room });
 });
+
 
 //*socket io
 io.on('connection', (socket) => {
