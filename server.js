@@ -26,6 +26,9 @@ io.on('connection', (socket) => {
     socket.on('join-room', function (roomId, userId) {
         socket.join(roomId);
         socket.to(roomId).emit('user-connected', userId);
+        socket.on('message', message => {
+            io.to(roomId).emit('createMessage', message)
+        })
     })
 });
 server.listen(3030);
